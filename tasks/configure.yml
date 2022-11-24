@@ -1,0 +1,28 @@
+- name: copy php-fpm
+  template:
+    src: templates/php.ini.j2
+    dest: "{{ php_ini_dest }}"
+    owner: root
+    group: root
+    mode: '0644'
+    backup: yes
+  notify:
+    - restart php-fpm
+
+- name: copy www.conf
+  template:
+    src: templates/php-fpm-www.conf.j2
+    dest: "{{ php_fpm_dest }}"
+    owner: root
+    group: root
+    mode: '0644'
+    backup: yes
+  notify:
+    - restart php-fpm
+
+- name: ensure php-fpm is running and enabled
+  tags: molecule-notest
+  service:
+    name: "{{ php_fpm_service }}"
+    enabled: yes
+    state: started

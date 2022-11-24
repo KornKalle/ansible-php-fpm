@@ -1,0 +1,76 @@
+---
+- name: Set facts for Debian
+  set_fact:
+    php_ini_dest: "/etc/php/{{ php_fpm_version }}/fpm/php.ini"
+    php_fpm_dest: "/etc/php/{{ php_fpm_version }}/fpm/pool.d/www.conf"
+    php_fpm_service: "php{{ php_fpm_version }}-fpm"
+
+- name: Set username for Debian
+  set_fact:
+    nginx_user: "www-data"
+  when: nginx_user is not defined
+
+- name: Set group for Debian
+  set_fact:
+    nginx_user: "www-data"
+  when: nginx_group is not defined
+
+# Ubuntu specific
+- name: Install ondrej/php Repo for Ubuntu
+  apt_repository:
+    repo: ppa:ondrej/php
+    state: present
+  when: ansible_distribution == "Ubuntu"
+
+- name: Add third-party repository on Ubuntu
+  become: true
+  apt_repository:
+    repo: "ppa:ondrej/php"
+  when:
+    - ansible_distribution|lower == "ubuntu"
+
+# Debian specific
+- name: Add Ondrej Sury's apt key for Debian
+  apt_key:
+    url: https://packages.sury.org/php/apt.gpg
+    id: 15058500A0235D97F5D10063B188E2B695BD4743
+    state: present
+  when: ansible_distribution == "Debian"
+
+- name: Add Ondrej Sury's repo for Debian
+  apt_repository:
+    repo: "deb https://packages.sury.org/php/ {{ ansible_distribution_release }} main"
+    state: present
+  register: php_ondrej_debian_repo
+  when: ansible_distribution == "Debian"
+
+- name: Update apt caches after repo is added Debian
+  apt:
+    update_cache: true
+  when:
+    - php_ondrej_debian_repo.changed
+    - ansible_distribution == "Debian"
+  tags: ['skip_ansible_lint']
+
+# Both
+- name: install Packages for Debian
+  apt:
+    state: present
+    name:
+      - php{{ php_fpm_version }}-fpm
+      - php{{ php_fpm_version }}-cli
+      - php{{ php_fpm_version }}-common
+      - php{{ php_fpm_version }}-mysql
+      - php{{ php_fpm_version }}-mbstring
+      - php{{ php_fpm_version }}-gd
+      - php{{ php_fpm_version }}-imagick
+      - php{{ php_fpm_version }}-intl
+      - php{{ php_fpm_version }}-bz2
+      - php{{ php_fpm_version }}-xml
+      - php{{ php_fpm_version }}-pgsql
+      - php{{ php_fpm_version }}-zip
+      - php{{ php_fpm_version }}-dev
+      - php{{ php_fpm_version }}-smbclient
+      - php{{ php_fpm_version }}-ldap
+      - php{{ php_fpm_version }}-curl
+      - php{{ php_fpm_version }}-redis
