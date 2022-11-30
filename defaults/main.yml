@@ -9,6 +9,6 @@ php_fpm_uploads_max_size: 2048M
 php_fpm_listen_address: 127.0.0.1:9000
 
 php_fpm_max_children: 5
-php_fpm_start_server: 2
+php_fpm_start_servers: 2
 php_fpm_min_spare_servers: 1
 php_fpm_max_spare_servers: 3
