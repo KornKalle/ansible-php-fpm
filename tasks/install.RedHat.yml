@@ -17,11 +17,7 @@
         update_cache: yes
 
     - name: Enable DNF module for CentOS 8+.
-      shell: |
-        dnf config-manager --set-enabled powertools
-        dnf module enable -y php:remi-7.4
-      args:
-        warn: false
+      shell: "dnf config-manager --set-enabled powertools && dnf module enable -y php:remi-8.2"
       register: dnf_module_enable
       changed_when: "'Nothing to do' not in dnf_module_enable.stdout"
 
@@ -45,7 +41,7 @@
   dnf:
     state: present
     name:
-      - "@php:remi-{{ php-fpm-version }}"
+      - "@php:remi-8.2"
       - php-cli
       - php-fpm
       - php-devel
